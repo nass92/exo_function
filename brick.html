@@ -29,6 +29,7 @@
     let canvas = document.getElementById("myCanvas");
     let ctx /*contexte*/ = canvas.getContext("2d");
 
+    /////////// LES VARIABLES /////////
 
     // définition des variables de la balle
     var x = canvas.width / 2;
@@ -46,6 +47,25 @@
     var rightPressed = false;
     var leftPressed = false;
 
+    //définition des variable des briques
+    var brickRowCount = 3;
+    var brickColumnCount = 5;
+    var brickWidth = 75;
+    var brickHeight = 20;
+    var brickPadding = 10;
+    var brickOffsetTop = 30;
+    var brickOffsetLeft = 30;
+
+    var bricks = [];
+    for (var c = 0; c < brickColumnCount; c++) {
+      bricks[c] = [];
+      for (var r = 0; r < brickRowCount; r++) {
+        bricks[c][r] = { x: 0, y: 0 };
+      }
+    }
+
+    /////////LES FONCTIONS///////////
+
     //caracteristique de la raquette
     function drawPaddle() {
       ctx.beginPath();
@@ -59,19 +79,40 @@
     function drawBall() {
       ctx.beginPath();
       ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-      ctx.fillStyle = "#0095DD";
+      ctx.fillStyle = "green";
       ctx.fill();
       ctx.closePath();
     }
+
+    // caracteristique des bricks
+    function drawBricks() {
+      for (var c = 0; c < brickColumnCount; c++) {
+        for (var r = 0; r < brickRowCount; r++) {
+          var brickX = 1.4 * (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+          var brickY = 2 * (r * (brickHeight + brickPadding)) + brickOffsetTop;
+          bricks[c][r].x = brickX;
+          bricks[c][r].y = brickY;
+          ctx.beginPath();
+          ctx.rect(brickX, brickY, brickWidth, brickHeight);
+          ctx.fillStyle = "#0095DD";
+          ctx.fill();
+          ctx.closePath();
+        }
+      }
+    }
+
+
     //fonction de dessin 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBricks();
       drawBall();
       drawPaddle();
 
+
       if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
-        ctx.fillStyle = "#0095DD"
+
       }
       //rebondi en haut et met game over si la balle passe par le bas
       if (y + dy < ballRadius) {
@@ -104,6 +145,9 @@
       x += dx;
       y += dy;
     }
+
+    // fon
+
 
 
     // écouteurs d'événements

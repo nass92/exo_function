@@ -47,7 +47,7 @@
     var rightPressed = false;
     var leftPressed = false;
 
-    //définition des variable des briques
+    //définition des variables des briques
     var brickRowCount = 3;
     var brickColumnCount = 5;
     var brickWidth = 75;
@@ -60,9 +60,13 @@
     for (var c = 0; c < brickColumnCount; c++) {
       bricks[c] = [];
       for (var r = 0; r < brickRowCount; r++) {
-        bricks[c][r] = { x: 0, y: 0 };
+        bricks[c][r] = { x: 0, y: 0, status: 1 };
       }
     }
+
+    //définition d'une variable score
+
+    var score = 0;
 
     /////////LES FONCTIONS///////////
 
@@ -88,66 +92,21 @@
     function drawBricks() {
       for (var c = 0; c < brickColumnCount; c++) {
         for (var r = 0; r < brickRowCount; r++) {
-          var brickX = 1.4 * (c * (brickWidth + brickPadding)) + brickOffsetLeft;
-          var brickY = 2 * (r * (brickHeight + brickPadding)) + brickOffsetTop;
-          bricks[c][r].x = brickX;
-          bricks[c][r].y = brickY;
-          ctx.beginPath();
-          ctx.rect(brickX, brickY, brickWidth, brickHeight);
-          ctx.fillStyle = "#0095DD";
-          ctx.fill();
-          ctx.closePath();
+          if (bricks[c][r].status == 1) {
+
+            var brickX = 1.4 * (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+            var brickY = 2 * (r * (brickHeight + brickPadding)) + brickOffsetTop;
+            bricks[c][r].x = brickX;
+            bricks[c][r].y = brickY;
+            ctx.beginPath();
+            ctx.rect(brickX, brickY, brickWidth, brickHeight);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+          }
         }
       }
     }
-
-
-    //fonction de dessin 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawBricks();
-      drawBall();
-      drawPaddle();
-
-
-      if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-        dx = -dx;
-
-      }
-      //rebondi en haut et met game over si la balle passe par le bas
-      if (y + dy < ballRadius) {
-        dy = -dy;
-      } else if (y + dy > canvas.height - ballRadius) {
-        if (x > paddleX && x < paddleX + paddleWidth) {
-          dy = -dy;
-          dx *= 1.3
-          dy *= 1.3
-        }
-        else {
-          alert("GAME OVER");
-          document.location.reload();
-          clearInterval(interval);
-        }
-      }
-
-      if (rightPressed) {
-        paddleX += 7;
-        if (paddleX + paddleWidth > canvas.width) {
-          paddleX = canvas.width - paddleWidth;
-        }
-      }
-      else if (leftPressed) {
-        paddleX -= 7;
-        if (paddleX < 0) {
-          paddleX = 0;
-        }
-      }
-      x += dx;
-      y += dy;
-    }
-
-    // fon
-
 
 
     // écouteurs d'événements
@@ -172,6 +131,85 @@
         leftPressed = false;
       }
     }
+
+    // fonction de detection de colision
+
+    function collisionDetection() {
+      for (var c = 0; c < brickColumnCount; c++) {
+        for (var r = 0; r < brickRowCount; r++) {
+          var b = bricks[c][r]; // definition de la variable qui stockent l'objet brique (b = une brique)
+          if (b.status == 1) {
+            if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+              dy = -dy;
+              b.status = 0 //disparition de la brique touchée
+              score++ // incrémentation de score a chaque brique touchée
+
+              // si toute les briques sont détruite = Victoire 
+              if (score == brickRowCount * brickColumnCount) {
+                alert("C'est gagné, Bravo!");
+                document.location.reload();
+                clearInterval(interval);
+              }
+            }
+          }
+        }
+      }
+    }
+    // définition de la fonction score
+    function drawScore() {
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "black";
+      ctx.fillText("Score: " + score, 8, 20);
+    }
+
+    //fonction de dessin 
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBricks(); //appelle la fonction des briques 
+      drawBall(); // appelle la fonction de la balle
+      drawPaddle();// appelle la fonction de la raquette 
+      collisionDetection(); // appelle la fonction de la detection de la balle qui touche une brique
+      drawScore(); // appelle la fonction score 
+
+      // la balle rebondit sur les cotés gauche et droite
+      if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+
+      }
+      //rebondi en haut et met GAME OVER si la balle passe par le bas
+      if (y + dy < ballRadius) {
+        dy = -dy;
+      } else if (y + dy > canvas.height - ballRadius) {
+        if (x > paddleX && x < paddleX + paddleWidth) {
+          dy = -dy;
+          // augmentation de la vitesse de la balle apres chaque rebond sur la raquette
+          dx *= 1.3
+          dy *= 1.2
+
+        }
+        else {
+          alert("GAME OVER");
+          document.location.reload();
+          clearInterval(interval);
+        }
+      }
+      // condition des deplacement de la raquette en fonction des touches (droite et gauche) préssé
+      if (rightPressed) {
+        paddleX += 7;
+        if (paddleX + paddleWidth > canvas.width) {
+          paddleX = canvas.width - paddleWidth;
+        }
+      }
+      else if (leftPressed) {
+        paddleX -= 7;
+        if (paddleX < 0) {
+          paddleX = 0;
+        }
+      }
+      x += dx;
+      y += dy;
+    }
+
 
     var interval = setInterval(draw, 10);
 

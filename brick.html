@@ -144,12 +144,14 @@
               b.status = 0 //disparition de la brique touchée
               score++ // incrémentation de score a chaque brique touchée
 
+
               // si toute les briques sont détruite = Victoire 
               if (score == brickRowCount * brickColumnCount) {
                 alert("C'est gagné, Bravo!");
                 document.location.reload();
                 clearInterval(interval);
               }
+
             }
           }
         }
@@ -202,10 +204,13 @@
       }
       else if (leftPressed) {
         paddleX -= 7;
-        if (paddleX < 0) {
-          paddleX = 0;
-        }
+
       }
+
+      /*if (score >= 2) {
+        drawBall()
+
+      }*/
       x += dx;
       y += dy;
     }
